@@ -2,11 +2,12 @@
   "name": "chat-safe-server",
   "version": "1.0.0",
   "description": "ChatSafe Application",
-  "main": "index.js",
+  "main": "index.ts",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./index.js"
+    "start": "tsc && nodemon --exec npx tsx ./src/index.ts",
+    "start-client": "node ./dist/client.js"
   },
   "repository": {
     "type": "git",
@@ -19,7 +20,16 @@
   },
   "homepage": "https://github.com/alinonea/chat-safe-server#readme",
   "dependencies": {
+    "aws-sdk": "^2.1631.0",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
-    "socket.io": "^4.7.5"
+    "nodemon": "^3.1.2",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
+    "uuid": "^9.0.1",
+    "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.11.0"
   }
 }
