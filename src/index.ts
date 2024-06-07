@@ -5,9 +5,11 @@ import { Server } from 'socket.io';
 import { WebSocketServer } from 'ws';
 import keysRouter from './keysHandler'
 import messagesRouter from './messagesHandler'
+import roomsRouter from './roomsHandler'
 import { addSubscription, removeSubscriptionsForConnections } from './subscriptionsDB';
-import { getMessagesAfter, storeMessage } from './messagesDB';
 import cors from 'cors';
+import { storeMessage } from './messages-db';
+import { Message } from './interfaces';
 
 const app = express();
 const server = createServer(app);
@@ -37,6 +39,7 @@ app.get('/', (req, res) => {
 
 app.use('/keys', keysRouter)
 app.use('/messages', messagesRouter)
+app.use('/rooms', roomsRouter)
 
 let onlineUsers = []
 
@@ -51,23 +54,33 @@ io.on('connect', (socket) => {
   //   }
   // })
 
-  socket.on('accept-message', async(address, message) => {
-    await storeMessage(address, message)
-
-    io.sockets.emit("send-message", {
-      message: message,
-      address: address
-    });
-  })
-
-  socket.on('get-recent-messages', async(address) => {
-    const items = await getMessagesAfter(address, Date.now() - 24 * 60 * 60 * 1000)
-    console.log(items)
-    for (const item of items) {
-      console.log('sent: ' + item)
-      socket.emit("send-message", item);
+  socket.on('accept-message', async(address, message, room) => {
+    const sentMessage: Message = {
+      roomId: room,
+      address,
+      message,
+      timestamp: Date.now()
     }
+
+    await storeMessage(sentMessage)
+
+    const from = address
+
+    io.to(room).emit("send-message", sentMessage, from);
   })
+
+  socket.on('join', (room) => {
+    socket.join(room);
+  })
+
+  // socket.on('get-recent-messages', async(address) => {
+  //   const items = await getMessagesAfter(address, Date.now() - 24 * 60 * 60 * 1000)
+  //   console.log(items)
+  //   for (const item of items) {
+  //     console.log('sent: ' + item)
+  //     socket.emit("send-message", item);
+  //   }
+  // })
 
   socket.on('new-user', (data) => {
     //Adds the new user to the list of users

@@ -1,6 +1,7 @@
 import express,{Request, Response} from 'express'
 import { FullKeyBundle } from './interfaces'
-import { getPublicPreKeyBundle, registerKeyBundle } from './keysDB'
+import { getPublicPreKeyBundle, registerKeyBundle } from './keys-db'
+
 const router = express.Router()
 
 router.post('/:address', async function(req: Request, res: Response){

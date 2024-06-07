@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPublicPreKeyBundle, registerKeyBundle } from './keysDB';
+import { getPublicPreKeyBundle, registerKeyBundle } from './keys-db';
 const router = express.Router();
 router.post('/:address', async function (req, res) {
     const { address } = req.params;

@@ -46,7 +46,7 @@ export async function getMessagesAfter(address, timestamp) {
         console.log(JSON.stringify(result));
         if (result.Items.length > 0) {
             const items = result.Items;
-            return items.map((item) => item.message);
+            return items;
         }
     }
     catch (error) {

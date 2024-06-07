@@ -1,16 +1,20 @@
+import { String } from "aws-sdk/clients/apigateway"
+
 export interface PublicPreKey {
     keyId: number
     publicKey: string
+    privateKey: String
 }
 
 export interface SignedPublicKey {
     keyId: number
     publicKey: string
+    privateKey: string
     signature: string
 }
 export interface FullKeyBundle {
-    registrationId: number
-    identityKey: string
+    identityKey: ArrayBuffer,
+    registrationId: number,
     signedPreKey: SignedPublicKey
     oneTimePreKeys: PublicPreKey[]
 }
@@ -22,14 +26,49 @@ export interface KeyTableItem extends FullKeyBundle {
 }
 
 export interface PublicPreKeyBundle {
-    identityKey: string
-    signedPreKey: SignedPublicKey
-    preKey?: PublicPreKey
-    registrationId: number
+    identityKey: ArrayBuffer,
+    registrationId: number,
+    signedPreKey: SignedPublicKey,
+    oneTimePreKeys: PublicPreKey[]
 }
 
 export interface MessageTableItem {
     address: string
-    sortID: string
+    timestamp: number
+    message: EncryptedMessage
+}
+
+export interface EncryptedMessage {
+    type: number,
+    body: string,
+    registrationId: number
+}
+
+export interface CreateRoomRequest {
+    name: string
+    password: string
+    username: string
+}
+
+export interface JoinRoomRequest {
+    name: string
+    password: string
+}
+
+export interface Room {
+    _id: string
+    users: [string]
+    isFull: boolean
+}
+
+export interface AddMessageRequest {
+    address: string
     message: string
+}
+
+export interface Message {
+    roomId: string
+    address: string
+    message: EncryptedMessage
+    timestamp: number
 }

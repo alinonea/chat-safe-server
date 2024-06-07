@@ -1,21 +1,29 @@
 import express,{Request, Response} from 'express'
-import { getMessagesAfter, storeMessage } from './messagesDB'
+import { getMessagesAfter, storeMessage } from './messages-db'
+import { AddMessageRequest, Message } from './interfaces'
 const router = express.Router()
 
-router.get('/:address', async function(req: Request, res: Response){
-    const { address } = req.params
+router.get('/:roomId', async function(req: Request, res: Response){
+    const { roomId } = req.params
     const { after } = req.query
 
-    const messages = await getMessagesAfter(address, parseInt(after))
+    const messages = await getMessagesAfter(roomId, parseInt(after))
 
     return res.status(200).send(messages)
 })
 
-router.post('/:address', async function(req: Request, res: Response){
-    const { address } = req.params
-    const message = req.body.message
+router.post('/:rooomId', async function(req: Request, res: Response){
+    const { roomId } = req.params
+    const addMessageRequest: AddMessageRequest = req.body
 
-    const item = await storeMessage(address, message)
+    const message: Message = {
+        roomId,
+        address: addMessageRequest.address,
+        message: addMessageRequest.message,
+        timestamp: Date.now()
+    }
+
+    const item = await storeMessage(message)
    
     if(item){
         return res.status(200).send({

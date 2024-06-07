@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMessagesAfter, storeMessage } from './messagesDB';
+import { getMessagesAfter, storeMessage } from './messages-db';
 const router = express.Router();
 router.get('/:address', async function (req, res) {
     const { address } = req.params;
