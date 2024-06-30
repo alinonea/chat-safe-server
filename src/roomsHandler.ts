@@ -34,13 +34,13 @@ router.post('/:username', async function(req: Request, res: Response){
         const room = await getRoomByCredentials(joinRoomRequest.name, joinRoomRequest.password)
 
         if(!room){
-            res.status(404).send({
+            return res.status(404).send({
                 message: "A room with given credentials could not be found."
             })
         }
 
         if(room.isFull === true) {
-            res.status(400).send({
+            return res.status(400).send({
                 message: "The room is already full."
             })
         }

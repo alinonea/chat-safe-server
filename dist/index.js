@@ -4,12 +4,13 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import keysRouter from './keysHandler';
 import messagesRouter from './messagesHandler';
-import { getMessagesAfter, storeMessage } from './messagesDB';
+import roomsRouter from './roomsHandler';
+import { storeMessage } from './messages-db';
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3003",
+        origin: "http://localhost:3001",
         credentials: true
     }
 });
@@ -26,42 +27,32 @@ app.get('/', (req, res) => {
 });
 app.use('/keys', keysRouter);
 app.use('/messages', messagesRouter);
+app.use('/rooms', roomsRouter);
 let onlineUsers = [];
 io.on('connect', (socket) => {
     console.log('a user has connected');
-    // socket.on('subscribe', async(channels) => {
-    //   const connectionId = socket.id
-    //   for (const sub of channels) {
-    //     await addSubscription(sub, connectionId)
-    //   }
-    // })
-    socket.on('accept-message', async (address, message) => {
-        await storeMessage(address, message);
-        io.sockets.emit("send-message", {
-            message: message,
-            address: address
-        });
+    socket.on('accept-message', async (address, message, room) => {
+        const sentMessage = {
+            roomId: room,
+            address,
+            message,
+            timestamp: Date.now()
+        };
+        await storeMessage(sentMessage);
+        const from = address;
+        io.to(room).emit("send-message", sentMessage, from);
     });
-    socket.on('get-recent-messages', async (address) => {
-        const items = await getMessagesAfter(address, Date.now() - 24 * 60 * 60 * 1000);
-        console.log(items);
-        for (const item of items) {
-            console.log('sent: ' + item);
-            socket.emit("send-message", item);
-        }
+    socket.on('join', (room) => {
+        socket.join(room);
     });
     socket.on('new-user', (data) => {
         //Adds the new user to the list of users
         onlineUsers.push(data);
-        console.log(onlineUsers);
-        // console.log(users);
         //Sends the list of users to the client
         socket.emit('new-user-notify', onlineUsers);
     });
     socket.on('disconnect', async (reason) => {
-        // await removeSubscriptionsForConnections(socket.id)
         onlineUsers = onlineUsers.filter((user) => user.socketID !== socket.id);
-        // console.log(users);
         //Sends the list of users to the client
         socket.emit('new-user-notify', onlineUsers);
         socket.disconnect();

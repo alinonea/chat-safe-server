@@ -63,7 +63,7 @@ export interface Room {
 
 export interface AddMessageRequest {
     address: string
-    message: string
+    message: EncryptedMessage
 }
 
 export interface Message {

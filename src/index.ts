@@ -2,12 +2,9 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
-import { WebSocketServer } from 'ws';
 import keysRouter from './keysHandler'
 import messagesRouter from './messagesHandler'
 import roomsRouter from './roomsHandler'
-import { addSubscription, removeSubscriptionsForConnections } from './subscriptionsDB';
-import cors from 'cors';
 import { storeMessage } from './messages-db';
 import { Message } from './interfaces';
 
@@ -15,7 +12,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3003",
+    origin: "http://localhost:3001",
     credentials: true
   }
 });
@@ -46,14 +43,6 @@ let onlineUsers = []
 io.on('connect', (socket) => {
   console.log('a user has connected')
 
-  // socket.on('subscribe', async(channels) => {
-  //   const connectionId = socket.id
-    
-  //   for (const sub of channels) {
-  //     await addSubscription(sub, connectionId)
-  //   }
-  // })
-
   socket.on('accept-message', async(address, message, room) => {
     const sentMessage: Message = {
       roomId: room,
@@ -73,28 +62,17 @@ io.on('connect', (socket) => {
     socket.join(room);
   })
 
-  // socket.on('get-recent-messages', async(address) => {
-  //   const items = await getMessagesAfter(address, Date.now() - 24 * 60 * 60 * 1000)
-  //   console.log(items)
-  //   for (const item of items) {
-  //     console.log('sent: ' + item)
-  //     socket.emit("send-message", item);
-  //   }
-  // })
-
   socket.on('new-user', (data) => {
     //Adds the new user to the list of users
     onlineUsers.push(data);
-    console.log(onlineUsers)
-    // console.log(users);
+  
     //Sends the list of users to the client
     socket.emit('new-user-notify', onlineUsers);
   });
 
   socket.on('disconnect', async(reason) => {
-    // await removeSubscriptionsForConnections(socket.id)
     onlineUsers = onlineUsers.filter((user) => user.socketID !== socket.id);
-    // console.log(users);
+
     //Sends the list of users to the client
     socket.emit('new-user-notify', onlineUsers);
     socket.disconnect();
