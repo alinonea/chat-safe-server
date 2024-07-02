@@ -20,6 +20,7 @@ router.post('/:rooomId', async function(req: Request, res: Response){
         roomId,
         address: addMessageRequest.address,
         message: addMessageRequest.message,
+        ownMessage: addMessageRequest.ownMessage,
         timestamp: Date.now()
     }
 

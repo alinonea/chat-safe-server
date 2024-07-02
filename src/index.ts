@@ -43,11 +43,12 @@ let onlineUsers = []
 io.on('connect', (socket) => {
   console.log('a user has connected')
 
-  socket.on('accept-message', async(address, message, room) => {
+  socket.on('accept-message', async(address, message, ownMessage, room) => {
     const sentMessage: Message = {
       roomId: room,
       address,
       message,
+      ownMessage,
       timestamp: Date.now()
     }
 
@@ -57,6 +58,10 @@ io.on('connect', (socket) => {
 
     io.to(room).emit("send-message", sentMessage, from);
   })
+
+  socket.on('create-connection', (message, room) => {
+    io.to(room).emit('connection-message', message);
+  }) 
 
   socket.on('join', (room) => {
     socket.join(room);

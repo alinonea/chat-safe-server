@@ -37,7 +37,7 @@ export async function getFullKeyBundle(address: string): Promise<KeyTableItem | 
 
 export async function getPublicPreKeyBundle(address: string): Promise<PublicPreKeyBundle | null> {
     const bundle = await getFullKeyBundle(address)
-    console.log(bundle)
+    // console.log(bundle)
     if (!bundle) {
         return null
     }
@@ -50,7 +50,7 @@ export async function getPublicPreKeyBundle(address: string): Promise<PublicPreK
     //     await replaceOneTimePreKeys(address, bundle.oneTimePreKeys)
     // }
 
-    console.log(bundle)
+    // console.log(bundle)
 
     return bundle
 }
@@ -63,5 +63,5 @@ export async function replaceOneTimePreKeys(address: string, prekeys: PublicPreK
             oneTimePreKeys: prekeys
         }
     })
-    console.log(JSON.stringify(result))
+    // console.log(JSON.stringify(result))
 }

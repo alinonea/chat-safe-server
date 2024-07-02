@@ -35,7 +35,8 @@ export interface PublicPreKeyBundle {
 export interface MessageTableItem {
     address: string
     timestamp: number
-    message: EncryptedMessage
+    message: EncryptedMessage,
+    ownMessage: EncryptedMessage,
 }
 
 export interface EncryptedMessage {
@@ -64,11 +65,13 @@ export interface Room {
 export interface AddMessageRequest {
     address: string
     message: EncryptedMessage
+    ownMessage: EncryptedMessage
 }
 
 export interface Message {
     roomId: string
     address: string
     message: EncryptedMessage
+    ownMessage: EncryptedMessage
     timestamp: number
 }
